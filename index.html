@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+    
+        table, th, td {
+            border: 1px solid black;
+        }
+        
+        th, td {
+            padding: 8px 12px;
+            text-align: center;
+        }
+    
+        h1 {
+            text-align: center;
+        }
+    </style>
+    
+    <title>Database Table Data</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/data')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network problem');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetched Data:', data);
+
+                    const tableBody = document.getElementById('table-body');
+                    tableBody.innerHTML = '';
+
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(row => {
+                            const fileName = row.file_name.toLowerCase();
+                            let fileTypeIcon = '/images/document.jpg'; 
+
+                            if (fileName.endsWith('.pdf')) {
+                                fileTypeIcon = '/images/pdf.jpg';//pdf
+                            } else if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+                                fileTypeIcon = '/images/document.png';//document
+                            } else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
+                                fileTypeIcon = '/images/excel.png';//excel
+                            }else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+                                fileTypeIcon = '/images/jpg.png';//jpg
+                            }else if (fileName.endsWith('.png') || fileName.endsWith('.img')) {
+                                fileTypeIcon = '/images/png.png';//image
+                            }else if (fileName.endsWith('.txt')){
+                                fileTypeIcon = '/images/txt.png';//image
+                            }
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${row.id}</td>
+                                <td>${row.name}</td>
+                                <td>${row.file_name}</td>
+                                <td>${row.file_content}</td>
+                                <td>${row.uploaded_date}</td>
+                                <td>${row.deleted}</td>
+                                <td>${row.subject_id}</td>
+                                <td><img src="${fileTypeIcon}" alt="File Type" width="30"></td>`;
+                            tableBody.appendChild(tr);
+                        });
+                    } else {
+                        tableBody.innerHTML = '<tr><td colspan="7">No data available</td></tr>';
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Database Table Data</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>File Name</th>
+            <th>File Content</th>
+            <th>Uploaded Date</th>
+            <th>Deleted</th>
+            <th>Subject ID</th>
+            <th>File Type</th>
+        </tr>
+        <tbody id="table-body">
+            <tr>
+                <td colspan="7">Loading...</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
